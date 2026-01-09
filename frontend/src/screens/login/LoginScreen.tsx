@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Header from "@/components/common/Header";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginScreen() {
   return (
@@ -18,6 +19,13 @@ export default function LoginScreen() {
               <button
                 type="button"
                 className="flex items-center justify-center cursor-pointer w-full py-3 px-4 border border-black rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-opacity"
+                onClick={() => {
+                  const redirectTo = `${window.location.origin}/auth/callback`;
+                  supabase.auth.signInWithOAuth({
+                    provider: "google",
+                    options: { redirectTo },
+                  });
+                }}
               >
                 <svg
                   className="w-5 h-5 mr-2"
