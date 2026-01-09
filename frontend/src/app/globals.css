@@ -1,26 +1,3967 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Custom scrollbar styles for email preference page */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Accessibility improvements for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .email-preference-btn {
+    transition: none !important;
+  }
+
+  .email-preference-btn:active {
+    transform: none !important;
   }
 }
 
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .email-preference-card {
+    border: 2px solid #000000 !important;
+  }
+
+  .email-preference-btn {
+    border-width: 3px !important;
+  }
+}
+
+/* Additional fixes for older devices and specific screen sizes */
+.email-preference-card {
+  contain: layout style;
+  position: relative;
+}
+
+.email-preference-btn {
+  min-height: 44px; /* Ensure touch targets are large enough */
+  min-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Specific fixes for Galaxy Note series and S3 - DISABLED to prevent conflicts with generic layout */
+/*
+@media screen and (min-width: 320px) and (max-width: 480px) and (min-height: 480px) and (max-height: 800px) {
+  .email-preference-card {
+    width: 90vw !important;
+    height: 80vh !important;
+    max-height: 600px !important;
+    overflow: hidden !important;
+    padding: 1rem !important;
+  }
+  
+  .email-preference-btn {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+    max-width: 250px !important;
+    width: 100% !important;
+  }
+}
+*/
+
+/* Galaxy Note 3 specific (1080x1920) - DISABLED to prevent conflicts */
+/*
+@media screen and (min-width: 360px) and (max-width: 410px) and (min-height: 640px) and (max-height: 740px) {
+  .email-preference-card {
+    width: 85vw !important;
+    height: 75vh !important;
+    max-height: 550px !important;
+  }
+}
+*/
+
+/* Galaxy S3 specific (720x1280) - DISABLED to prevent conflicts */
+/*
+@media screen and (min-width: 320px) and (max-width: 370px) and (min-height: 530px) and (max-height: 650px) {
+  .email-preference-card {
+    width: 90vw !important;
+    height: 80vh !important;
+    max-height: 500px !important;
+  }
+}
+*/
+
+/* Ensure bullets are always visible for markdown lists */
+.markdown-content ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  padding-left: 1.5rem !important;
+}
+
+.markdown-content ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  padding-left: 1.5rem !important;
+}
+
+.markdown-content li {
+  display: list-item !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* @import url("https://fonts.googleapis.com/css2?family=Satoshi+Variable:wght@700&display=swap"); */
+/* @import url("https://api.fontshare.com/v2/css?f[]=satoshi@1,900,700,500,301,701,300,501,401,901,400&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"); */
+@font-face {
+  font-family: "Satoshi-fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("sans-serif");
+  font-display: swap;
+}
+
+/* Reset and base styles */
+* {
+  /* margin: 0; */
+  /* padding: 0; */
+  box-sizing: border-box;
+}
+
+/* Dynamic CSS Variables for responsive scaling */
+:root {
+  /* Header responsive scaling */
+  --header-padding: clamp(16px, 4vw, 100px);
+  --logo-height: clamp(40px, 8vw, 75px);
+  --login-font-size: clamp(14px, 2vw, 22px);
+  --menu-icon-size: clamp(24px, 3vw, 40px);
+  --nav-gap: clamp(16px, 3vw, 32px);
+
+  /* Content responsive scaling */
+  --container-padding: clamp(16px, 5vw, 80px);
+  --text-scale: clamp(0.8rem, 2vw, 1.2rem);
+  --font-sans: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-inter: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Satoshi Variable", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+    sans-serif;
+  line-height: 1.6;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  /* background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)); */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  position: relative;
+  z-index: 100;
+  background: transparent;
+  padding: 0 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 var(--header-padding);
+  width: 100%;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+  /* margin-top: 23px; */
+}
+
+.logo-image {
+  height: var(--logo-height);
+  width: auto;
+  object-fit: contain;
+  transition: height 0.3s ease;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  height: 70px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--nav-gap);
+}
+
+.login-text {
+  /* color: white; */
+  font-size: var(--login-font-size);
+  font-weight: clamp(500, 0.5vw + 500, 600);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  transition: font-size 0.3s ease;
+}
+
+.clickable-login {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clickable-login:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.menu-toggle {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  outline: none; /* Remove focus outline */
+}
+
+.menu-toggle:focus {
+  outline: none; /* Remove focus outline on tap/click */
+}
+
+.menu-icon {
+  display: block;
+  width: var(--menu-icon-size);
+  height: var(--menu-icon-size);
+  /* filter: brightness(0) invert(1); */
+  transition: all 0.3s ease;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+/* Hero Content */
+.hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 80px 0 80px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+
+.hero-text-content {
+  background: rgba(241, 139, 130, 0.6);
+  padding: 0;
+  border-radius: 0;
+  max-width: 360px;
+  min-height: 200px;
+  position: absolute;
+  left: 0;
+  margin-left: calc(-50vw + 50%);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #fffbfb;
+  line-height: 1.2;
+  /* margin-bottom: 24px; */
+  letter-spacing: normal;
+  padding: 20px 24px 0 24px;
+  /* Ensure text is visible */
+  min-height: 40px;
+  display: block;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.hero-description {
+  font-family: "Inter", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  color: white;
+  line-height: 1.6;
+  margin-bottom: 0;
+  opacity: 0.95;
+  padding: 0 24px 20px 24px;
+  display: block;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* CTA Button Container */
+.cta-container {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+}
+
+.cta-button {
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: white;
+  color: #000000;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-width: 200px;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Grounded in Science Section */
+.grounded-science-section {
+  width: 100%;
+  min-height: 40vh;
+  background: rgba(184, 163, 224, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+}
+
+.grounded-science-content {
+  max-width: 800px;
+  text-align: center;
+  color: white;
+}
+
+.grounded-science-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 32px;
+  line-height: 1.2;
+}
+
+.grounded-science-description {
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  color: white;
+  line-height: 1.6;
+  margin: 0;
+  /* opacity: 0.95; */
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Get My First Nudge Challenge Container - within grounded science section */
+.nudge-challenge-container {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.grounded-science-section .nudge-challenge-container .nudge-challenge-button,
+.nudge-challenge-button {
+  background: black !important;
+  border: none !important;
+  color: white !important;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.grounded-science-section
+  .nudge-challenge-container
+  .nudge-challenge-button:hover,
+.nudge-challenge-button:hover {
+  background: #333333 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Rectangle 72 Section */
+.rectangle-72-section {
+  width: 100%;
+  display: block;
+  position: relative;
+}
+
+.rectangle-72-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Responsive adjustments for Rectangle 72 */
+
+@media (max-width: 768px) {
+  .rectangle-72-image {
+    height: auto;
+  }
+}
+
+/* Responsive adjustments for header */
+
+@media (max-width: 768px) {
+  .logo-image {
+    width: 145px;
+    height: 48px;
+  }
+  .menu-icon {
+    display: block;
+    width: 50px;
+    height: 50px;
+    /* filter: brightness(0) invert(1); */
+    transition: all 0.3s ease;
+  }
+  .nav-right {
+    align-items: center;
+    /* margin-top: -40px; */
+  }
+  .header-content {
+    padding: 0px 8px;
+  }
+  .menu-toggle {
+    padding: 0px;
+  }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .rectangle-72-image {
+    height: auto;
+  }
+}
+
+@media (min-width: 1025px) {
+  .rectangle-72-image {
+    height: auto;
+  }
+}
+
+/* Rectangle 105 - How Liv Works Section */
+.rectangle-105-section {
+  width: 100%;
+  position: relative;
+  min-height: 70vh;
+}
+
+.rectangle-105-background {
+  width: 100%;
+  height: 100%;
+  min-height: 70vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  display: flex;
+  /* align-items: center; */
+  padding: 60px 0;
+}
+
+.rectangle-105-content {
+  max-width: 45%;
+  width: 45%;
+  padding: 40px;
+  margin-left: 5%;
+  color: white;
+  text-align: left;
+}
+
+.rectangle-105-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.rectangle-105-description {
+  font-size: 16px;
+  color: white;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.95;
+  text-align: left;
+}
+
+/* Rectangle 109 - What People Say (Testimonials) Section */
+.rectangle-109-section {
+  width: 100%;
+  position: relative;
+  min-height: 80vh;
+  background: #f8f9fa;
+}
+
+.rectangle-109-background {
+  width: 100%;
+  height: 100%;
+  min-height: 80vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+}
+
+.testimonials-container {
+  max-width: 100%;
+  width: 100%;
+  text-align: center;
+  padding: 0;
+}
+
+.testimonials-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 16px;
+  line-height: 1.2;
+  padding: 0 20px;
+}
+
+.testimonials-subtitle {
+  font-family: "Inter", "Satoshi", sans-serif;
+  font-size: 18px;
+  color: #d4d4d4;
+  line-height: 1.6;
+  margin-bottom: 60px;
+  font-weight: 500;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+}
+
+.testimonials-carousel {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.testimonials-track {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0;
+  scroll-snap-type: x mandatory;
+  width: 100%;
+}
+
+.testimonials-track::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonial-card {
+  flex: 0 0 100vw;
+  background: white;
+  border-radius: 0;
+  padding: 40px 20px;
+  box-shadow: none;
+  text-align: center;
+  position: relative;
+  scroll-snap-align: center;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.testimonial-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 20px auto;
+  overflow: hidden;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testimonial-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6b46c1, #9333ea);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+.testimonial-name {
+  font-family: "Satoshi", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.testimonial-rating {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #ffa500;
+}
+
+.testimonial-text {
+  font-family: "Satoshi", sans-serif;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+.testimonials-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.dot.active {
+  background: #6b46c1;
+}
+
+.dot:hover {
+  background: #999;
+}
+
+.testimonials-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.nav-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.nav-dot.active {
+  background: #6b46c1;
+  transform: scale(1.2);
+}
+
+.nav-dot:hover {
+  background: #999;
+}
+
+/* Responsive adjustments for Grounded in Science */
+@media (max-width: 768px) {
+  .grounded-science-section {
+    padding: 60px 20px;
+    min-height: 40vh;
+  }
+
+  .grounded-science-title {
+    font-size: 32px;
+    margin-bottom: 24px;
+  }
+
+  .grounded-science-description {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .grounded-science-title {
+    font-size: 40px;
+  }
+
+  .grounded-science-description {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .grounded-science-section {
+    padding: 65px 40px;
+    min-height: 50vh;
+  }
+
+  .grounded-science-title {
+    font-size: 52px;
+  }
+
+  .grounded-science-description {
+    font-size: 19px;
+    max-width: 750px;
+  }
+}
+
+/* Responsive adjustments for Nudge Challenge Button within Grounded Science */
+@media (max-width: 768px) {
+  .nudge-challenge-container {
+    margin-top: 30px;
+  }
+
+  .nudge-challenge-button {
+    font-size: 14px;
+    padding: 14px 24px;
+    min-width: 250px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .nudge-challenge-container {
+    margin-top: 35px;
+  }
+
+  .nudge-challenge-button {
+    font-size: 15px;
+    padding: 15px 28px;
+    min-width: 260px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .nudge-challenge-container {
+    margin-top: 45px;
+  }
+
+  .nudge-challenge-button {
+    font-size: 17px;
+    padding: 18px 36px;
+    min-width: 300px;
+  }
+}
+
+/* Responsive adjustments for hero Background */
+@media (max-width: 768px) {
+  .hero-background {
+    background-position: -850px center;
+  }
+}
+
+/* Responsive adjustments for Rectangle 105 - How Liv Works */
+@media (max-width: 768px) {
+  .rectangle-105-section {
+    min-height: 47vh;
+  }
+
+  .rectangle-105-background {
+    min-height: 47vh;
+    padding: 40px 0;
+    /* width: 10%; */
+  }
+
+  .rectangle-105-content {
+    max-width: 80%;
+    width: 60%;
+    margin-left: 5%;
+    padding: 20px;
+  }
+
+  .rectangle-105-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .rectangle-105-description {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .rectangle-105-section {
+    min-height: 65vh;
+  }
+
+  .rectangle-105-background {
+    min-height: 65vh;
+    padding: 50px 0;
+  }
+
+  .rectangle-105-content {
+    max-width: 45%;
+    width: 45%;
+    margin-left: 5%;
+    padding: 30px;
+  }
+
+  .rectangle-105-title {
+    font-size: 32px;
+    margin-bottom: 22px;
+  }
+
+  .rectangle-105-description {
+    font-size: 15px;
+    line-height: 1.55;
+  }
+}
+
+@media (min-width: 1025px) {
+  .rectangle-105-section {
+    min-height: 75vh;
+  }
+
+  .rectangle-105-background {
+    min-height: 75vh;
+    padding: 10px 0;
+  }
+
+  .rectangle-105-content {
+    max-width: 42%;
+    width: 42%;
+    margin-left: 6%;
+    padding: 45px;
+  }
+
+  .rectangle-105-title {
+    font-size: 40px;
+    margin-bottom: 26px;
+  }
+
+  .rectangle-105-description {
+    font-size: 17px;
+    line-height: 1.65;
+  }
+}
+
+@media (min-width: 1440px) {
+  .rectangle-105-content {
+    max-width: 40%;
+    width: 40%;
+    margin-left: 7%;
+    padding: 50px;
+  }
+
+  .rectangle-105-title {
+    font-size: 42px;
+    margin-bottom: 28px;
+  }
+
+  .rectangle-105-description {
+    font-size: 18px;
+    line-height: 1.7;
+  }
+}
+
+/* Rectangle 107 - 7 Pillars of Longevity Section */
+.rectangle-107-section {
+  position: relative;
+  /* min-height: 80vh; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding-top: 45px; */
+  width: 100%;
+}
+
+.rectangle-107-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 200% 100% at 50% 45%,
+    rgba(87, 142, 122, 0.66) 0%,
+    rgba(87, 142, 122, 0.66) 45%,
+    rgba(75, 120, 105, 0.75) 55%,
+    rgba(65, 105, 90, 0.8) 100%
+  );
+  z-index: 1;
+}
+
+.rectangle-107-content {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  /* max-width: 500px; */
+  /* width: 90%; */
+  height: 80%;
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pillars-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 40px;
+  line-height: 1.2;
+  text-align: start;
+  width: 100%;
+}
+
+.pillars-list {
+  margin-bottom: 40px;
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: start;
+  width: 100%;
+  display: flex;
+  row-gap: 17px;
+  flex-direction: column;
+}
+
+.pillar-item {
+  font-size: 18px;
+  color: white;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+.pillars-description {
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  color: white;
+  line-height: 1.6;
+  font-weight: 400;
+  margin: 0;
+  text-align: start;
+  width: 100%;
+}
+
+/* Responsive adjustments for Rectangle 107 */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .rectangle-107-section {
+    min-height: 70vh;
+    padding: 0;
+  }
+
+  .rectangle-107-content {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 70%;
+    width: 70%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pillars-title {
+    font-size: 36px;
+    margin-bottom: 30px;
+  }
+
+  .pillar-item {
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+
+  .pillars-description {
+    font-size: 17px;
+  }
+
+  .pillars-list {
+    margin-bottom: 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rectangle-107-section {
+    min-height: 60vh;
+    padding: 0;
+  }
+
+  .rectangle-107-content {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 75%;
+    width: 75%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pillars-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .pillar-item {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .pillars-description {
+    font-size: 16px;
+  }
+
+  .pillars-list {
+    margin-bottom: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rectangle-107-section {
+    min-height: 56vh;
+    /* padding: 20px; */
+  }
+
+  .rectangle-107-content {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 85%;
+    width: 85%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pillars-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .pillar-item {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .pillars-description {
+    font-size: 14px;
+  }
+
+  .pillars-list {
+    display: flex;
+    row-gap: 5px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Responsive Design */
+
+/* Extra Small Devices - Nest Hub and similar (280px+) */
+@media screen and (max-width: 319px) {
+  .hero-content {
+    padding: 15px 0 60px 0;
+    align-items: flex-start;
+    text-align: left;
+    justify-content: center;
+  }
+
+  .hero-text-content {
+    max-width: 260px;
+    min-height: 160px;
+    margin: 0;
+    margin-left: calc(-50vw + 50%);
+    padding: 0;
+    border-radius: 0;
+    position: absolute;
+    left: 0;
+    top: 45%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.2;
+    padding: 12px 16px 0 16px;
+  }
+
+  .hero-description {
+    font-size: 11px;
+    margin-bottom: 0;
+    line-height: 1.3;
+    padding: 0 16px 12px 16px;
+  }
+
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 140px;
+  }
+
+  .cta-container {
+    bottom: 3%;
+  }
+}
+
+/* Mobile First - Base styles (320px+) */
+@media screen and (min-width: 320px) {
+  .hero-content {
+    padding: 20px 0 80px 0;
+    align-items: flex-start;
+    text-align: left;
+    justify-content: center;
+  }
+
+  .hero-text-content {
+    max-width: 280px;
+    min-height: 180px;
+    margin: 0;
+    margin-left: calc(-50vw + 50%);
+    padding: 0;
+    border-radius: 0;
+    position: absolute;
+    left: 0;
+    top: 40%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.3;
+    padding: 16px 20px 0 20px;
+  }
+
+  .hero-description {
+    font-size: 12px;
+    margin-bottom: 0;
+    line-height: 1.4;
+    padding: 0 20px 16px 20px;
+  }
+
+  .cta-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 160px;
+  }
+
+  .cta-container {
+    bottom: 5%;
+  }
+}
+
+/* Small Mobile (375px+) */
+@media screen and (min-width: 375px) {
+  .hero-content {
+    padding: 90px 0 50px 0;
+  }
+
+  .hero-text-content {
+    /* max-width: 300px; */
+    max-width: 246px;
+    min-height: 200px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+    margin-bottom: 0;
+    color: #fffbfb;
+    font-weight: 700;
+  }
+
+  .cta-button {
+    padding: 13px 26px;
+    font-size: 15px;
+    min-width: 170px;
+  }
+
+  .cta-container {
+    bottom: 5%;
+  }
+}
+
+/* Large Mobile (480px+) */
+@media screen and (min-width: 480px) {
+  .hero-content {
+    padding: 100px 0 60px 0;
+  }
+
+  .hero-text-content {
+    max-width: 340px;
+    min-height: 220px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .hero-description {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  .cta-button {
+    padding: 14px 28px;
+    font-size: 15px;
+    min-width: 180px;
+  }
+
+  .cta-container {
+    bottom: 6%;
+  }
+}
+
+/* Tablet Portrait (768px+) */
+@media screen and (min-width: 768px) {
+  .hero-content {
+    padding: 80px 0 80px 0;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero-text-content {
+    max-width: 380px;
+    min-height: 240px;
+    padding: 0;
+    margin-left: calc(-50vw + 50%);
+    border-radius: 0;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 22px;
+  }
+
+  .hero-description {
+    font-size: 15px;
+    margin-bottom: 0;
+  }
+
+  .cta-button {
+    padding: 15px 30px;
+    font-size: 16px;
+    min-width: 190px;
+  }
+
+  .cta-container {
+    bottom: 8%;
+  }
+}
+
+/* Tablet Landscape / Small Desktop (1024px+) */
+@media screen and (min-width: 1024px) {
+  .hero-content {
+    padding: 130px 0 90px 0;
+  }
+
+  .hero-text-content {
+    max-width: 420px;
+    min-height: 260px;
+    padding: 0;
+    margin-left: calc(-50vw + 50%);
+    border-radius: 0;
+    position: absolute;
+    left: 0;
+    top: 35%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+
+  .cta-button {
+    padding: 16px 32px;
+    font-size: 16px;
+    min-width: 200px;
+  }
+
+  .cta-container {
+    bottom: 10%;
+  }
+}
+
+/* Desktop (1200px+) */
+@media screen and (min-width: 1200px) {
+  .hero-content {
+    padding: 140px 0 100px 0;
+  }
+
+  .hero-text-content {
+    max-width: 440px;
+    min-height: 280px;
+    padding: 0;
+    margin-left: calc(-50vw + 50%);
+    position: absolute;
+    left: 0;
+    top: 30%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+    margin-bottom: 32px;
+  }
+
+  .cta-button {
+    padding: 16px 32px;
+    font-size: 16px;
+    min-width: 200px;
+  }
+
+  .cta-container {
+    bottom: 6%;
+  }
+}
+
+/* Large Desktop (1440px+) */
+@media screen and (min-width: 1440px) {
+  .hero-content {
+    padding: 150px 0 110px 0;
+  }
+
+  .hero-text-content {
+    max-width: 460px;
+    min-height: 300px;
+    padding: 0;
+    margin-left: calc(-50vw + 50%);
+    position: absolute;
+    left: 0;
+    top: 25%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 26px;
+  }
+
+  .hero-description {
+    font-size: 18px;
+    margin-bottom: 34px;
+  }
+
+  .cta-button {
+    padding: 18px 36px;
+    font-size: 17px;
+    min-width: 220px;
+  }
+
+  .cta-container {
+    bottom: 5%;
+  }
+}
+
+/* Extra Large Desktop (1920px+) */
+@media screen and (min-width: 1920px) {
+  .hero-text-content {
+    max-width: 480px;
+    min-height: 320px;
+    padding-left: 25px;
+    margin-left: calc(-50vw + 50%);
+    position: absolute;
+    left: 0;
+    top: 22%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 52px;
+    font-weight: 700;
+    margin-bottom: 28px;
+  }
+
+  .hero-description {
+    font-size: 19px;
+    margin-bottom: 36px;
+  }
+}
+
+/* Very short screens - landscape mobile and small tablets */
+@media screen and (max-height: 500px) and (min-width: 480px) {
+  .hero-content {
+    padding: 20px 0 30px 0;
+  }
+
+  .hero-text-content {
+    max-width: 320px;
+    min-height: 140px;
+    top: 35%;
+    transform: translateY(-50%);
+  }
+
+  .hero-title {
+    font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding: 12px 18px 0 18px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+    margin-bottom: 0;
+    padding: 0 18px 12px 18px;
+  }
+
+  .cta-container {
+    bottom: 2%;
+  }
+
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 160px;
+  }
+}
+
+/* Nest Hub and similar landscape devices */
+@media screen and (min-width: 1024px) and (max-height: 600px) {
+  .hero-content {
+    padding: 40px 0 40px 0;
+  }
+
+  .hero-text-content {
+    max-width: 380px;
+    min-height: 180px;
+    top: 40%;
+    transform: translateY(-50%);
+  }
+
+  .hero-title {
+    font-family: "Satoshi", sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding: 16px 20px 0 20px;
+  }
+
+  .hero-description {
+    font-size: 14px;
+    margin-bottom: 0;
+    padding: 0 20px 16px 20px;
+  }
+
+  .cta-container {
+    bottom: 3%;
+  }
+
+  .cta-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 180px;
+  }
+}
+
+/* Smooth scrolling animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-text-content {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-text-content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Menu icon animation */
+.menu-toggle {
+  transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Focus states for accessibility */
+.cta-button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .hero-text-content {
+    background: rgba(239, 154, 154, 1);
+  }
+
+  .header {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Responsive adjustments for Rectangle 109 - Testimonials */
+@media (max-width: 768px) {
+  .rectangle-109-section {
+    min-height: 68vh;
+  }
+
+  .rectangle-109-background {
+    min-height: 68vh;
+    padding: 50px 20px;
+  }
+
+  .testimonials-title {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .testimonials-subtitle {
+    font-size: 16px;
+    margin-bottom: 40px;
+  }
+
+  .testimonial-card {
+    flex: 0 0 280px;
+    padding: 25px;
+  }
+
+  .testimonials-track {
+    gap: 20px;
+  }
+
+  .testimonial-name {
+    font-size: 16px;
+  }
+
+  .testimonial-text {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .testimonials-title {
+    font-size: 42px;
+  }
+
+  .testimonials-subtitle {
+    font-size: 17px;
+    margin-bottom: 50px;
+  }
+
+  .testimonial-card {
+    flex: 0 0 300px;
+    padding: 28px;
+  }
+
+  .testimonials-track {
+    gap: 25px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .rectangle-109-section {
+    min-height: 80vh;
+  }
+
+  .rectangle-109-background {
+    min-height: 80vh;
+    padding: 80px 40px;
+  }
+
+  .testimonials-title {
+    font-size: 52px;
+    margin-bottom: 20px;
+  }
+
+  .testimonials-subtitle {
+    font-size: 19px;
+    margin-bottom: 70px;
+    max-width: 700px;
+  }
+
+  .testimonial-card {
+    flex: 0 0 340px;
+    padding: 35px;
+  }
+
+  .testimonials-track {
+    gap: 35px;
+  }
+
+  .testimonial-name {
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
+
+  .testimonial-text {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .testimonials-title {
+    font-size: 56px;
+  }
+
+  .testimonials-subtitle {
+    font-size: 20px;
+    max-width: 750px;
+  }
+
+  .testimonial-card {
+    flex: 0 0 360px;
+    padding: 40px;
+  }
+
+  .testimonials-track {
+    gap: 40px;
+  }
+}
+
+/* Rectangle 140 - Get Your First Nudge Challenge Section */
+.rectangle-140-section {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.rectangle-140-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.rectangle-140-overlay {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 80px 200px;
+  row-gap: 30px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.rectangle-140-content {
+  max-width: 450px;
+  text-align: left;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.challenge-title {
+  font-weight: 700;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 10px;
+  font-size: 40px;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.challenge-description {
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 24px;
+  color: white;
+  line-height: 1.5;
+  margin-bottom: 32px;
+  width: 250px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-weight: 400;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.challenge-cta-button {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.challenge-cta-button:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments for Rectangle 140 */
+@media (max-width: 1024px) {
+  .rectangle-140-overlay {
+    justify-content: center;
+    padding: 60px 40px;
+  }
+
+  .rectangle-140-content {
+    text-align: center;
+    max-width: 500px;
+  }
+
+  .challenge-title {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rectangle-140-section {
+    min-height: 80vh;
+  }
+
+  .rectangle-140-background {
+    background-position: center 10%;
+  }
+
+  .rectangle-140-overlay {
+    height: 80vh;
+    padding: 40px 30px;
+  }
+
+  .rectangle-140-content {
+    max-width: 85%;
+    margin-left: auto;
+    margin-right: 0;
+    text-align: right;
+  }
+
+  .challenge-title {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-align: right;
+  }
+
+  .challenge-description {
+    font-size: 15px;
+    margin-bottom: 28px;
+    text-align: right;
+  }
+
+  .challenge-cta-button {
+    padding: 14px 28px;
+    font-size: 15px;
+    margin-left: auto;
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .rectangle-140-section {
+    min-height: 45vh;
+  }
+
+  .rectangle-140-background {
+    background-position: center 5%;
+  }
+
+  .rectangle-140-overlay {
+    height: 70vh;
+    padding: 30px 20px;
+    justify-content: flex-end;
+    align-items: flex-start;
+    text-align: right;
+  }
+
+  .rectangle-140-content {
+    max-width: 50%;
+    margin-left: auto;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .challenge-title {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    font-size: 32px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .challenge-description {
+    font-size: 14px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .challenge-cta-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    margin-left: 0px;
+
+    /* margin-left: auto; */
+    /* display: block; */
+  }
+}
+
+/* Ensure no image distortion on all screen sizes */
+@media (min-width: 1024px) {
+  .rectangle-140-background {
+    background-size: cover;
+    background-position: center 20%;
+  }
+}
+
+@media (max-aspect-ratio: 16/9) {
+  .rectangle-140-background {
+    background-size: cover;
+    background-position: center 15%;
+  }
+}
+
+@media (min-aspect-ratio: 16/9) {
+  .rectangle-140-background {
+    background-size: cover;
+    background-position: center 25%;
+  }
+}
+
+/* Rectangle 153 - Footer Section */
+.rectangle-153-section {
+  background: #fffbfb;
+  padding: 80px 60px 60px 60px;
+  width: 100%;
+}
+
+.rectangle-153-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.footer-logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.footer-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+.footer-description {
+  font-size: 16px;
+  color: #d4d4d4;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0;
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  padding-top: 20px;
+}
+
+.footer-links-section {
+  display: flex;
+  gap: 120px;
+  align-items: flex-start;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-column-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d4d4d4;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 0;
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-link {
+  font-size: 16px;
+  color: #3f3f3f;
+  text-decoration: none;
+  font-weight: 700;
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: color 0.3s ease;
+  line-height: 1.4;
+}
+
+.footer-link:hover {
+  color: #6b46c1;
+}
+
+/* Responsive adjustments for Rectangle 153 */
+@media (max-width: 768px) {
+  .rectangle-153-section {
+    padding: 60px 30px 40px 30px;
+  }
+
+  .rectangle-153-container {
+    gap: 40px;
+  }
+
+  .footer-logo {
+    height: 60px;
+  }
+
+  .footer-description {
+    font-size: 14px;
+  }
+
+  .footer-links-section {
+    gap: 60px;
+  }
+
+  .footer-column-title {
+    font-size: 13px;
+  }
+
+  .footer-link {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rectangle-153-section {
+    padding: 40px 20px 30px 20px;
+  }
+
+  .rectangle-153-container {
+    gap: 30px;
+  }
+
+  .footer-logo {
+    height: 50px;
+  }
+
+  .footer-description {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .footer-links-section {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .footer-column-title {
+    font-size: 12px;
+  }
+
+  .footer-link {
+    font-size: 14px;
+  }
+}
+
+/* Rectangle 155 - Navigation Menu Compact */
+.navigation-menu {
+  position: fixed;
+  top: 0;
+  right: -400px; /* Completely hidden off-screen */
+  width: max-content; /* Auto-fit to content */
+  min-width: 240px;
+  max-width: 90vw; /* Responsive max width */
+  height: max-content; /* Auto-fit to content */
+  background: #fff9f9;
+  z-index: 250;
+  transition: right 0.3s ease;
+  overflow: visible; /* Allow content to determine size */
+  padding: 45px 90px 30px 30px;
+  /* Shadow for better visibility */
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.navigation-menu.active {
+  right: 20px; /* Slide in with padding from edge */
+}
+
+/* Desktop specific padding adjustments */
+@media (min-width: 1024px) {
+  .navigation-menu.active {
+    right: 40px; /* More right padding on desktop */
+  }
+}
+
+@media (min-width: 1440px) {
+  .navigation-menu.active {
+    right: 60px; /* Even more right padding on large desktop */
+  }
+}
+
+.menu-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.menu-item {
+  padding: 4px 0;
+  display: block; /* Ensure full width for click area */
+}
+
+.menu-link {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  transition: color 0.3s ease;
+  white-space: nowrap; /* Prevent text wrapping */
+  outline: none; /* Remove focus outline */
+}
+
+.menu-link:hover {
+  color: #6b46c1;
+}
+
+.menu-link:focus {
+  outline: none; /* Remove focus outline on tap/click */
+}
+
+.menu-link.active {
+  color: #f18b82; /* Pink color for active state */
+}
+
+.menu-link.active .menu-title {
+  color: #f18b82; /* Pink color for active title */
+}
+
+.menu-title {
+  /* font-size: 14px; */
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0 0 2px 0;
+  color: #333;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.menu-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  color: #f18b82;
+  opacity: 0.9;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Menu close button */
+.menu-close {
+    color: #333;
+    cursor: pointer;
+    z-index: 260;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    outline: none;
+    font-size: 36px;
+    line-height: 36px;
+    position: absolute;
+    top: 36px;
+    right: 28px;
+    width: 48px !important;
+    height: 48px !important;
+    transition: transform .3s;
+}
+
+.menu-close:hover {
+  transform: scale(1.1);
+}
+
+.menu-close:focus {
+  outline: none; /* Remove focus outline on tap/click */
+}
+
+/* Responsive adjustments for Rectangle 155 */
+@media (max-width: 768px) {
+  .navigation-menu {
+    max-width: 85vw; /* Slightly smaller on tablets */
+    padding: 30px 16px 16px 16px;
+  }
+
+  .navigation-menu.active {
+    right: 16px;
+  }
+
+  .menu-items {
+    gap: 6px;
+  }
+
+  .menu-item {
+    padding: 3px 0;
+  }
+
+  .menu-title {
+    font-size: 13px;
+  }
+
+  .menu-subtitle {
+    font-size: 10px;
+  }
+
+  .menu-close {
+    top: 6px;
+    right: 10px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation-menu {
+    max-width: 90vw; /* Use most of screen width on mobile */
+    padding: 25px 12px 12px 12px;
+  }
+
+  .navigation-menu.active {
+    right: 12px;
+  }
+
+  .menu-items {
+    gap: 5px;
+  }
+
+  .menu-item {
+    padding: 2px 0;
+  }
+
+  .menu-title {
+    font-size: 12px;
+  }
+
+  .menu-subtitle {
+    font-size: 9px;
+  }
+}
+
+/* Menu Icon Animation */
+.menu-toggle.active .menu-icon {
+  transform: rotate(90deg);
+}
+
+.desktop-2-menu-toggle.active .desktop-2-menu-icon {
+  transform: rotate(90deg);
+  transition: transform 0.3s ease;
+}
+
+.desktop-2-menu-toggle .desktop-2-menu-icon {
+  transition: transform 0.3s ease;
+}
+
+.desktop-2-menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* High contrast mode support for menu */
+@media (prefers-contrast: high) {
+  .navigation-menu {
+    background: #ffffff;
+    border-left: 2px solid #333;
+  }
+
+  .menu-item {
+    border-bottom-color: #333;
+  }
+
+  .menu-title {
+    color: #000;
+  }
+
+  .menu-subtitle {
+    color: #666;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+  .navigation-menu {
+    padding: 40px 24px 20px 24px;
+  }
+
+  .menu-items {
+    gap: 16px;
+  }
+
+  .menu-item {
+    padding-bottom: 8px;
+  }
+
+  .menu-title {
+    font-size: 15px;
+  }
+
+  .menu-subtitle {
+    font-size: 12px;
+  }
+}
+
+/* Smooth scrolling for menu */
+.navigation-menu {
+  scroll-behavior: smooth;
+}
+
+/* Rectangle 153 - Footer Section */
+.rectangle-153-section {
+  background: #fffbfb;
+  padding: 80px 60px 60px 60px;
+  width: 100%;
+}
+
+.rectangle-153-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.footer-logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.footer-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+.footer-description {
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0;
+}
+
+.footer-links-section {
+  display: flex;
+  gap: 120px;
+  align-items: flex-start;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-column-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #999;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* .footer-link {
+  font-size: 16px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  line-height: 1.4;
+} */
+
+.footer-link:hover {
+  color: #6b46c1;
+}
+
+/* Responsive adjustments for Rectangle 153 */
+@media (max-width: 768px) {
+  .rectangle-153-section {
+    padding: 60px 30px 40px 30px;
+  }
+
+  .rectangle-153-container {
+    gap: 40px;
+  }
+
+  .footer-logo {
+    height: 60px;
+  }
+
+  .footer-description {
+    font-size: 14px;
+  }
+
+  .footer-links-section {
+    gap: 60px;
+  }
+
+  .footer-column-title {
+    font-size: 13px;
+  }
+
+  .footer-link {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rectangle-153-section {
+    padding: 40px 20px 30px 20px;
+  }
+
+  .rectangle-153-container {
+    gap: 30px;
+  }
+
+  .footer-logo {
+    height: 50px;
+  }
+
+  .footer-description {
+    font-size: 13px;
+    max-width: 100%;
+  }
+
+  .footer-links-section {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .footer-column-title {
+    font-size: 12px;
+  }
+
+  .footer-link {
+    font-size: 14px;
+  }
+}
+
+iframe[allow="identity-credentials-get"] {
+  width: 100% !important;
+}
+
+/* ========================================
+   ABOUT PAGE STYLES - RESPONSIVE
+   ======================================== */
+
+/* Combined Container */
+.about-combined-container {
+  position: relative;
+  width: 100%;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.no-gap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Special fix for small mobile devices */
+@media screen and (max-width: 480px) {
+  .no-gap::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20px; /* Height of the overlap patch */
+    background: #f6b3ad; /* Same as the pink section */
+    z-index: 5;
+    transform: translateY(50%); /* Position it to cover any potential gap */
+  }
+}
+
+/* About Hero Section */
+.about-hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 70vh; /* Set to 70vh to show an appropriate portion of the image */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+  margin-bottom: -5px; /* Add negative margin to eliminate any potential gap */
+}
+
+.about-hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center 20%; /* Cut from top and position to show more of the body */
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+/* Mobile-specific background and hero adjustments */
+@media screen and (max-width: 640px) {
+  .about-hero-background {
+    height: calc(38vh + 10px);
+    object-fit: cover; /* Changed to cover to fill the area */
+    background-position: center 25%; /* Cut from top and show more body */
+  }
+
+  .mobile-cropped-hero {
+    height: 38vh !important;
+    min-height: 38vh !important;
+    max-height: 38vh !important;
+    margin-bottom: -10px !important; /* Aggressive negative margin to remove any gap */
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Fix potential overflow issues */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Ensure pink section connects perfectly */
+  .who-is-liv-section {
+    position: relative;
+    z-index: 10; /* Higher z-index to ensure it appears above the hero section */
+    margin-top: -10px !important; /* Aggressive negative margin */
+  }
+}
+
+.about-hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 120px 0 60px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+
+.about-hero-text {
+  /* Remove pink background overlay */
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  max-width: 350px;
+  min-height: 180px;
+  position: absolute;
+  left: 0;
+  margin-left: calc(-50vw + 50% + 100px);
+  top: 35%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.about-hero-text.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about-hero-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #fffbfb;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  letter-spacing: normal;
+  padding: 0;
+  min-height: 40px;
+  display: block;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.about-hero-description {
+  font-family: "Inter", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  color: #fff8f8;
+  line-height: 1.6;
+  margin-bottom: 0;
+  opacity: 1;
+  padding: 0;
+  display: block;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Section Cards Styling */
+.section-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 24px;
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.pink-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.green-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.engagement-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.card-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.card-description {
+  font-family: "Inter", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Who is Liv Section */
+.who-is-liv-section {
+  padding: 40px 0 20px 0;
+  margin-top: -5px; /* Further increased negative margin to ensure no gap */
+  position: relative;
+  z-index: 1; /* Ensure it appears over the hero section */
+  background-color: #f6b3ad;
+  border-top: 0; /* Ensure no border creates a gap */
+  box-sizing: border-box;
+}
+
+.who-is-liv-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.who-is-liv-section h3,
+.who-is-liv-section p {
+  color: white;
+}
+
+.who-is-liv-section p,
+.livs-mission-section p {
+  line-height: 1.7;
+  max-width: 540px;
+  letter-spacing: -0.01em;
+  word-wrap: break-word;
+  hyphens: none;
+}
+
+/* Common styles for avatar sections */
+.who-is-liv-section .flex,
+.livs-mission-section .flex {
+  align-items: flex-start;
+}
+
+.who-is-liv-section .flex > div:first-child,
+.livs-mission-section .flex > div:first-child {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4px;
+  min-width: 140px;
+}
+
+.who-is-liv-section .flex > div:last-child,
+.livs-mission-section .flex > div:last-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Responsive styles for different devices */
+@media screen and (max-width: 640px) {
+  /* Mobile phone styles */
+  .who-is-liv-section .flex,
+  .livs-mission-section .flex {
+    gap: 12px;
+  }
+
+  .who-is-liv-section .flex > div:first-child,
+  .livs-mission-section .flex > div:first-child {
+    min-width: 80px;
+  }
+
+  /* Fix the gap issue on small screens */
+  .about-hero-section {
+    margin-bottom: -2px; /* Increased negative margin */
+    padding-bottom: 0;
+    border-bottom: none;
+    /* Crop hero image on mobile */
+    height: 45vh;
+    min-height: 45vh;
+    max-height: 45vh;
+    overflow: hidden; /* Hide overflow */
+  }
+
+  .who-is-liv-section {
+    margin-top: -10px; /* Much larger negative margin to eliminate gaps */
+    padding-top: 20px;
+    border-top: none;
+    position: relative;
+    z-index: 10; /* Ensure higher z-index */
+  }
+
+  /* Additional fix for potential browser default margins */
+  .about-combined-container {
+    overflow: hidden;
+  }
+
+  /* Specific fixes for gap on small screens */
+  @media screen and (max-width: 768px) {
+    .about-hero-section {
+      margin-bottom: -5px;
+      /* Force the hero section to have a specific height on mobile to prevent gaps */
+      height: 45vh; /* Reduced height on mobile */
+      min-height: 45vh;
+      max-height: 45vh;
+    }
+    .who-is-liv-section {
+      margin-top: -5px;
+    }
+    /* Force sections to touch with no gap */
+    .no-gap > * {
+      margin-bottom: -1px;
+      margin-top: -1px;
+    }
+    /* Hide any overflow that might cause scrolling */
+    .about-combined-container {
+      overflow: hidden;
+      position: relative;
+    }
+    /* Force absolute positioning for hero to prevent layout shifts */
+    .about-hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      object-fit: cover;
+    }
+  }
+}
+
+@media screen and (min-width: 641px) and (max-width: 767px) {
+  /* Small tablet styles */
+  .who-is-liv-section .flex,
+  .livs-mission-section .flex {
+    gap: 20px;
+  }
+
+  .who-is-liv-section .flex > div:first-child,
+  .livs-mission-section .flex > div:first-child {
+    min-width: 100px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  /* Tablet styles for avatar sections */
+  .who-is-liv-section .flex,
+  .livs-mission-section .flex {
+    gap: 32px;
+  }
+
+  .who-is-liv-section .flex > div:first-child,
+  .livs-mission-section .flex > div:first-child {
+    min-width: 160px;
+  }
+
+  /* Additional padding for Who is Liv section */
+  .who-is-liv-section {
+    padding: 50px 0 16px 0;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  /* Desktop styles for avatar sections */
+  .who-is-liv-section .flex,
+  .livs-mission-section .flex {
+    gap: 36px;
+  }
+
+  .who-is-liv-section .flex > div:first-child,
+  .livs-mission-section .flex > div:first-child {
+    min-width: 170px;
+  }
+
+  /* Additional padding for Who is Liv section */
+  .who-is-liv-section {
+    padding: 60px 0 10px 0;
+  }
+}
+
+/* Liv's Mission Section */
+.livs-mission-section {
+  padding: 10px 0 30px 0; /* Reduced bottom padding from 60px to 30px */
+  background: #f6b3ad;
+  margin-top: 0;
+}
+
+.livs-mission-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.livs-mission-section h3,
+.livs-mission-section p {
+  color: white;
+}
+
+/* Longevity Coaching Section */
+.longevity-coaching-section {
+  padding: 20px 0 40px 0; /* Reduced top padding from 80px to 20px and bottom from 80px to 40px */
+  background: #f6b3ad;
+  margin-top: -20px; /* Added negative margin to move the section up */
+}
+
+.longevity-coaching-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.coaching-main-card {
+  background: rgba(87, 142, 122, 0.66);
+  border-radius: 20px;
+  padding: 20px 32px 40px 32px; /* Reduced top padding from 40px to 20px */
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  overflow: visible; /* Changed to visible to ensure icons aren't cut */
+}
+
+.coaching-header-flex {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 24px;
+  width: 100%;
+  gap: 30px;
+}
+
+.coaching-title-container {
+  text-align: left;
+  flex: 1;
+}
+
+.coaching-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.coaching-badge {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-right: auto;
+}
+
+.longevity-score-circle {
+  background: #b8a3e0; /* Purple color as requested */
+  border-radius: 50%;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  left: -100px; /* Moved more to the left */
+}
+
+.score-title {
+  font-family: "Inter", sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  max-width: 90px;
+}
+
+.score-number {
+  color: white;
+  font-weight: 700;
+  font-size: 24px; /* Reduced font size */
+  display: block;
+  text-align: center;
+}
+
+/* Responsive styles for the circle and layout */
+@media screen and (max-width: 768px) {
+  .longevity-coaching-section {
+    padding: 10px 0 60px 0; /* Even less top padding on mobile */
+    margin-top: -15px;
+  }
+
+  .coaching-main-card {
+    padding: 15px 24px 30px 24px; /* Further reduce padding on medium screens */
+  }
+
+  .longevity-score-circle {
+    width: 90px;
+    height: 90px;
+    left: -20px; /* More shift to the left on smaller screens */
+  }
+
+  .score-title {
+    font-size: 7px;
+    max-width: 70px;
+    margin-bottom: 6px;
+  }
+
+  .score-number {
+    font-size: 20px;
+  }
+
+  .coaching-title {
+    font-size: 24px;
+  }
+
+  .coaching-header-flex {
+    flex-wrap: nowrap;
+    gap: 15px;
+    margin-bottom: 20px; /* Reduce bottom margin as well */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .coaching-main-card {
+    padding: 12px 5px 25px 5px; /* Minimized side padding */
+  }
+
+  .longevity-score-circle {
+    width: 80px;
+    height: 80px;
+    left: -15px; /* More shift to the left on the smallest screens */
+  }
+
+  .score-title {
+    font-size: 6px;
+    max-width: 60px;
+    margin-bottom: 4px;
+  }
+
+  .score-number {
+    font-size: 18px;
+  }
+
+  .coaching-title {
+    font-size: 20px;
+  }
+
+  .coaching-header-flex {
+    justify-content: flex-start;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px; /* Even less bottom margin on small screens */
+  }
+
+  .pillar-icon {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+  }
+
+  .icon-group.text-aligned {
+    gap: 5px;
+    margin-top: 24px;
+    padding-bottom: 5px; /* Reduced padding */
+    padding-left: 2px;
+    padding-right: 2px;
+    overflow-x: visible; /* No scrolling needed */
+  }
+}
+
+/* iPhone SE (1st & 2nd gen) specific - 375px width */
+@media screen and (min-width: 320px) and (max-width: 375px) {
+  .pillar-icon {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+  }
+
+  .icon-group.text-aligned {
+    gap: 4px;
+    justify-content: center; /* Center alignment */
+    padding-left: 5px; /* Reduced padding */
+    padding-right: 5px; /* Reduced padding */
+    overflow-x: visible; /* No scrolling needed */
+  }
+
+  .coaching-main-card {
+    padding: 12px 5px 25px 5px; /* Minimum padding */
+  }
+}
+
+/* iPhone XR specific - 414px width */
+@media screen and (min-width: 376px) and (max-width: 414px) {
+  .pillar-icon {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+  }
+
+  .icon-group.text-aligned {
+    gap: 6px;
+    justify-content: center; /* Center alignment */
+    padding-left: 5px; /* Reduced padding */
+    padding-right: 5px; /* Reduced padding */
+    overflow-x: visible; /* No scrolling needed */
+  }
+
+  .coaching-main-card {
+    padding: 12px 5px 25px 5px; /* Minimum padding */
+  }
+}
+
+.coaching-description {
+  font-family: "Inter", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  color: white;
+  line-height: 1.6;
+  margin-bottom: 20px; /* Reduced margin for smaller screens */
+  text-align: left;
+  display: block;
+  white-space: pre-line;
+  width: 100%;
+}
+
+.coaching-icons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0 5px; /* Increased padding to prevent edge cutting */
+  overflow: visible; /* Make sure content isn't cut */
+}
+
+.icon-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.icon-group.text-aligned {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0 auto;
+  justify-content: center; /* Center alignment */
+  margin-top: 40px;
+  overflow-x: visible; /* Changed to visible - no scrolling needed */
+  flex-wrap: nowrap; /* Prevent wrapping to next line */
+  padding-bottom: 10px; /* Reduced padding */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.pillar-icon {
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important; /* Prevent shrinking */
+  object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.pillar-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Liv Engagement Section */
+.liv-engagement-section {
+  padding: 0 0 30px 0;
+  background: #f6b3ad;
+  position: relative;
+  z-index: 1;
+  color: white;
+  margin-top: -20px; /* Connect with the previous section */
+}
+
+.liv-engagement-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.liv-engagement-section h3 {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  margin: 0 0 16px 0;
+}
+
+.liv-engagement-section p {
+  font-family: "Inter", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  color: white;
+  line-height: 1.7;
+  max-width: 540px;
+  letter-spacing: -0.01em;
+  word-wrap: break-word;
+  hyphens: none;
+}
+
+/* Evidence Based Section */
+.evidence-based-section {
+  padding: 0px 0 80px;
+  background: #f6b3ad;
+  margin-top: -15px; /* Further reduce space from previous section */
+}
+
+.evidence-based-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.evidence-title {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 36px;
+  line-height: 1.3;
+  padding-top: 20px;
+}
+
+.evidence-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.evidence-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.evidence-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.evidence-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+}
+
+.evidence-emoji {
+  font-size: 24px;
+}
+
+.sleep-icon {
+  background: rgba(147, 51, 234, 0.1);
+}
+
+.brain-icon {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.exercise-icon {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.heart-icon {
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.evidence-metric {
+  font-family: "Satoshi Variable", "Satoshi", "Satoshi-fallback", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #6d93a8;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.evidence-label {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #6d93a8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* About CTA Section */
+.about-cta-section {
+  padding: 60px 0;
+  background: rgba(87, 142, 122, 0.66);
+  text-align: center;
+}
+
+.about-cta-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.about-cta-button {
+  background: white;
+  color: #000000;
+  padding: 18px 36px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Inter", "Satoshi Variable", "Satoshi", "Satoshi-fallback",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.about-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ======================================== */
+
+/* Extra Small Devices (280px+) */
+@media screen and (max-width: 319px) {
+  .about-hero-content {
+    padding: 80px 0 0 0;
+  }
+
+  .about-hero-section {
+    min-height: 60vh;
+  }
+
+  /* Adjust top/bottom padding for Who is Liv section on small screens */
+  .who-is-liv-section {
+    padding: 0 0 15px 0;
+    margin-top: -2px; /* Fix white gap on small screens */
+  }
+
+  .about-hero-background {
+    height: 100%;
+    background-position: center top;
+    background-size: cover;
+  }
+
+  .about-hero-text {
+    max-width: 260px;
+    min-height: 140px;
+    top: 35%;
+    margin-left: calc(-50vw + 50% + 60px);
+  }
+
+  .about-hero-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .about-hero-description {
+    font-size: 12px;
+  }
+
+  .who-is-liv-section .flex,
+  .livs-mission-section .flex,
+  .liv-engagement-section .flex {
+    flex-direction: row;
+    text-align: left;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .who-is-liv-section .flex > div:first-child,
+  .livs-mission-section .flex > div:first-child,
+  .liv-engagement-section .flex > div:first-child {
+    margin-bottom: 0;
+    min-width: 70px;
+  }
+
+  .who-is-liv-section h3,
+  .livs-mission-section h3,
+  .liv-engagement-section h3 {
+    margin-top: 2px;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .who-is-liv-section p,
+  .livs-mission-section p,
+  .liv-engagement-section p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .section-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 16px;
+    margin: 0 10px;
+    gap: 16px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .card-description {
+    font-size: 14px;
+  }
+
+  .coaching-title {
+    font-size: 22px;
+  }
+
+  .coaching-main-card {
+    padding: 12px 5px 25px 5px; /* Further reduced side padding for tiniest screens */
+  }
+
+  .pillar-icon {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+  }
+
+  .icon-group.text-aligned {
+    gap: 3px; /* Smallest possible gap */
+    padding: 0;
+    justify-content: center;
+    overflow-x: visible; /* No scrolling needed */
+  }
+
+  .evidence-title {
+    font-size: 28px;
+    margin-bottom: 24px;
+    padding-top: 10px;
+  }
+
+  .evidence-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Small Mobile (320px+) */
+@media screen and (min-width: 320px) {
+  .about-hero-content {
+    padding: 100px 0 0 0;
+  }
+
+  .about-hero-section {
+    min-height: 70vh;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .about-hero-background {
+    height: 100%;
+    background-position: center 25%; /* Cut from top and show more body */
+    background-size: cover;
+  }
+
+  .who-is-liv-section {
+    margin-top: -1px; /* Fix white gap issue */
+    padding-top: 20px;
+  }
+
+  .about-hero-text {
+    max-width: 280px;
+    min-height: 160px;
+    top: 34%;
+    margin-left: calc(-50vw + 50% + 70px);
+  }
+
+  /* Responsive avatar and content styling */
+  .who-is-liv-section .flex > div:first-child,
+  .livs-mission-section .flex > div:first-child,
+  .liv-engagement-section .flex > div:first-child {
+    min-width: 96px;
+  }
+
+  .who-is-liv-section .flex,
+  .livs-mission-section .flex,
+  .liv-engagement-section .flex {
+    gap: 16px;
+  }
+
+  .about-hero-title {
+    font-size: 22px;
+    margin-bottom: 14px;
+  }
+
+  .about-hero-description {
+    font-size: 13px;
+  }
+
+  .section-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 20px;
+    margin: 0 16px;
+    gap: 20px;
+  }
+
+  .card-title {
+    font-size: 22px;
+  }
+
+  .card-description {
+    font-size: 15px;
+  }
+
+  .coaching-main-card {
+    padding: 32px 24px;
+  }
+
+  .coaching-title {
+    font-size: 24px;
+  }
+
+  .coaching-description {
+    font-size: 15px;
+    text-align: left;
+    white-space: pre-line;
+  }
+
+  .icon-group {
+    flex-wrap: nowrap;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .icon-group.text-aligned {
+    padding: 0 5px;
+    margin-top: 30px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+  }
+
+  .icon-group.text-aligned::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
+
+  .pillar-icon {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important; /* Added to prevent shrinking */
+    flex-shrink: 0; /* Prevent icon from shrinking */
+  }
+
+  .icon-circle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .evidence-title {
+    font-size: 30px;
+    margin-bottom: 36px;
+  }
+
+  .evidence-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .about-cta-button {
+    padding: 16px 32px;
+    font-size: 15px;
+    min-width: 220px;
+  }
+}
+
+/* Large Mobile (375px+) */
+@media screen and (min-width: 375px) {
+  .about-hero-section {
+    min-height: 80vh;
+  }
+
+  .about-hero-background {
+    height: 100%;
+    background-position: 70% 25%; /* Cut from top and show more body */
+    background-size: cover;
+  }
+
+  /* .about-hero-text {
+    max-width: 300px;
+    min-height: 180px;
+    margin-left: calc(-50vw + 50% + 80px);
+    top: 33%;
+  } */
+  .about-hero-text {
+    max-width: 175px;
+    min-height: 0px;
+    margin-left: calc(50% - 50vw + 21px);
+    top: 6%;
+  }
+  .about-hero-title {
+    font-size: 24px;
+  }
+
+  .about-hero-description {
+    font-size: 14px;
+  }
+
+  .section-card {
+    padding: 32px 24px;
+    margin: 0 20px;
+  }
+
+  .icon-group.text-aligned {
+    gap: 10px;
+  }
+
+  .pillar-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .evidence-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+/* Tablet (768px+) */
+@media screen and (min-width: 768px) {
+  .about-hero-section {
+    min-height: 65vh;
+  }
+
+  .about-hero-background {
+    height: 90%;
+    background-position: center 25%; /* Cut from top and show more body */
+    background-size: cover;
+  }
+
+  .about-hero-content {
+    padding: 120px 0 60px 0;
+  }
+
+  .about-hero-text {
+    max-width: 380px;
+    min-height: 200px;
+    top: 32%;
+    margin-left: calc(-50vw + 50% + 90px);
+  }
+
+  .about-hero-title {
+    font-size: 28px;
+  }
+
+  .about-hero-description {
+    font-size: 16px;
+  }
+
+  .section-card {
+    flex-direction: row;
+    text-align: left;
+    padding: 40px 32px;
+    margin: 0 40px;
+    gap: 32px;
+  }
+
+  .card-title {
+    font-size: 26px;
+  }
+
+  .card-description {
+    font-size: 16px;
+  }
+
+  .coaching-main-card {
+    padding: 48px 40px;
+  }
+
+  .coaching-title {
+    font-size: 30px;
+  }
+
+  .coaching-description {
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .icon-group.text-aligned {
+    flex-wrap: nowrap;
+    justify-content: center; /* Center icons instead of space-between */
+    gap: 20px; /* Use consistent gap instead */
+    overflow-x: visible;
+  }
+
+  .pillar-icon {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .evidence-title {
+    font-size: 40px;
+    margin-bottom: 48px;
+  }
+
+  .evidence-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .about-cta-button {
+    padding: 18px 36px;
+    font-size: 16px;
+    min-width: 260px;
+  }
+}
+
+/* Desktop (1024px+) */
+@media screen and (min-width: 1024px) {
+  .about-hero-section {
+    min-height: 70vh;
+  }
+
+  .about-hero-background {
+    height: 95%;
+    background-position: center 25%; /* Cut from top and show more body */
+    background-size: cover;
+  }
+
+  .about-hero-content {
+    padding: 140px 0 80px 0;
+  }
+
+  .about-hero-text {
+    max-width: 420px;
+    min-height: 220px;
+    top: 31%;
+    margin-left: calc(-50vw + 50% + 110px);
+  }
+
+  .about-hero-title {
+    font-size: 32px;
+  }
+
+  .about-hero-description {
+    font-size: 17px;
+  }
+
+  .section-card {
+    padding: 48px 40px;
+    margin: 0 auto;
+    max-width: 800px;
+  }
+
+  .card-title {
+    font-size: 28px;
+  }
+
+  .card-description {
+    font-size: 17px;
+  }
+
+  .coaching-main-card {
+    padding: 56px 48px;
+    max-width: 700px;
+  }
+
+  .coaching-title {
+    font-size: 32px;
+  }
+
+  .coaching-description {
+    font-size: 17px;
+  }
+
+  .evidence-title {
+    font-size: 44px;
+  }
+
+  .about-cta-button {
+    padding: 20px 40px;
+    font-size: 17px;
+    min-width: 280px;
+  }
+}
+
+/* Large Desktop (1200px+) */
+@media screen and (min-width: 1200px) {
+  .about-hero-background {
+    height: 100%;
+    background-position: center 25%; /* Cut from top and show more body */
+    background-size: cover;
+  }
+
+  .about-hero-text {
+    max-width: 460px;
+    min-height: 240px;
+    top: 30%;
+    margin-left: calc(-50vw + 50% + 120px);
+  }
+
+  .about-hero-title {
+    font-size: 36px;
+  }
+
+  .about-hero-description {
+    font-size: 18px;
+  }
+
+  .coaching-main-card {
+    max-width: 800px;
+  }
+
+  .evidence-title {
+    font-size: 48px;
+  }
+}
+
+/* Very short screens - landscape mobile */
+@media screen and (max-height: 500px) and (min-width: 480px) {
+  .about-hero-section {
+    min-height: 45vh;
+  }
+
+  .about-hero-content {
+    padding: 20px 0 30px 0;
+  }
+
+  .about-hero-text {
+    max-width: 320px;
+    min-height: 140px;
+    top: 35%;
+    margin-left: calc(-50vw + 50% + 80px);
+  }
+
+  .about-hero-title {
+    font-size: 20px;
+  }
+
+  .about-hero-description {
+    font-size: 13px;
+  }
 }
