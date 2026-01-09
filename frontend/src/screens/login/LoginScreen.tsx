@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Header from "@/components/common/Header";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginScreen() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-[#578E7AA8]">
       <Header loginText="" />
@@ -13,7 +15,10 @@ export default function LoginScreen() {
         <main className="bg-white rounded-lg shadow-sm w-full max-w-xs sm:max-w-lg md:max-w-xl lg:min-w-2xl mx-auto py-12 flex justify-center">
           <div className="max-w-2xs sm:max-w-sm md:max-w-md lg:min-w-lg">
             <form
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={(event) => {
+                event.preventDefault();
+                router.push("/basic-info");
+              }}
               className="space-y-2"
             >
               <button

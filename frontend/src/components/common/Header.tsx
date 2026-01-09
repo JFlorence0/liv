@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 interface HeaderProps {
   variant?: "default" | "desktop2";
@@ -26,7 +27,14 @@ const Header: React.FC<HeaderProps> = ({
   theme = "light",
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [userName, setUserName] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isActive = (path: string) =>
+    pathname === path || pathname.startsWith(`${path}/`);
 
   const headerClass = variant === "desktop2" ? "desktop-2-header" : "header";
   const headerContentClass =
@@ -58,6 +66,80 @@ const Header: React.FC<HeaderProps> = ({
       document.body.classList.remove("overflow-hidden");
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const hydrateAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (mounted) {
+        const user = data.user;
+        setIsAuthenticated(Boolean(user));
+
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name")
+            .eq("id", user.id)
+            .maybeSingle();
+          setUserName(
+            profile?.first_name ||
+              (user.user_metadata?.first_name as string) ||
+              (user.email?.split("@")[0] ?? "")
+          );
+        } else {
+          setUserName("");
+        }
+
+        setIsAuthLoading(false);
+      }
+    };
+
+    hydrateAuth();
+
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (mounted) {
+          const user = session?.user ?? null;
+          setIsAuthenticated(Boolean(user));
+          if (user) {
+            supabase
+              .from("profiles")
+              .select("first_name")
+              .eq("id", user.id)
+              .maybeSingle()
+              .then(({ data: profile }) => {
+                if (!mounted) return;
+                setUserName(
+                  profile?.first_name ||
+                    (user.user_metadata?.first_name as string) ||
+                    (user.email?.split("@")[0] ?? "")
+                );
+                setIsAuthLoading(false);
+              });
+          } else {
+            setUserName("");
+            setIsAuthLoading(false);
+          }
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const authActionLabel = isAuthenticated ? "Logout" : loginText;
+
+  const handleAuthAction = async () => {
+    if (isAuthenticated) {
+      await supabase.auth.signOut();
+      setIsAuthenticated(false);
+    }
+    router.push("/login");
+  };
 
   return (
     <>
@@ -103,17 +185,49 @@ const Header: React.FC<HeaderProps> = ({
               </span>
             )}
             <span
-              className={`${loginTextClass} ${textColor} cursor-pointer`}
-              onClick={() => router.push("/login")}
+              className={`${loginTextClass} ${textColor} ${
+                isAuthenticated ? "" : "cursor-pointer"
+              }`}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  router.push("/login");
+                }
+              }}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+                if (!isAuthenticated && (e.key === "Enter" || e.key === " ")) {
                   router.push("/login");
                 }
               }}
             >
-              {loginText}
+              {isAuthLoading ? (
+                <svg
+                  className="animate-spin h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  style={{ color: theme === "light" ? "#fff" : "#000" }}
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : isAuthenticated ? (
+                userName || "Welcome!"
+              ) : (
+                loginText
+              )}
             </span>
             <button
               className={`${menuToggleClass} ${isMenuOpen ? "active" : ""}`}
@@ -150,7 +264,9 @@ const Header: React.FC<HeaderProps> = ({
             <li className="w-full">
               <Link
                 href="/"
-                className="block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition text-gray-800"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
@@ -159,7 +275,9 @@ const Header: React.FC<HeaderProps> = ({
             <li className="w-full">
               <Link
                 href="/about"
-                className="block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition text-gray-800"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/about") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
@@ -167,21 +285,81 @@ const Header: React.FC<HeaderProps> = ({
             </li>
             <li className="w-full">
               <Link
+                href="/todays-nudge"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/todays-nudge") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Today&apos;s Nudge
+              </Link>
+            </li>
+            <li className="w-full">
+              <Link
+                href="/ask-liv"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/ask-liv") ? "text-[#F18B82]" : "text-[#1B8BD8]"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Ask Liv
+              </Link>
+            </li>
+            <li className="w-full">
+              <Link
+                href="/profile"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/profile") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Your Profile
+              </Link>
+            </li>
+            <li className="w-full">
+              <Link
+                href="/faq"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/faq") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                FAQ
+              </Link>
+            </li>
+            <li className="w-full">
+              <Link
+                href="/chat-history"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/chat-history") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Chat History
+              </Link>
+            </li>
+            <li className="w-full">
+              <Link
                 href="/contact"
-                className="block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition text-gray-800"
+                className={`block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition ${
+                  isActive("/contact") ? "text-[#F18B82]" : "text-gray-800"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
               </Link>
             </li>
             <li className="w-full">
-              <Link
-                href="/login"
-                className="block pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition text-gray-800"
-                onClick={() => setIsMenuOpen(false)}
+              <button
+                type="button"
+                className="block w-full text-left pt-2 pb-1 pl-9 rounded-lg text-base font-semibold hover:bg-gray-100 hover:text-[#F18B82] transition text-gray-800"
+                onClick={async () => {
+                  await handleAuthAction();
+                  setIsMenuOpen(false);
+                }}
               >
-                {loginText}
-              </Link>
+                {authActionLabel}
+              </button>
             </li>
           </ul>
         </nav>
@@ -201,7 +379,7 @@ const Header: React.FC<HeaderProps> = ({
           <li className="menu-item">
             <Link
               href="/"
-              className="menu-link"
+              className={`menu-link ${isActive("/") ? "active" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               <h3 className="menu-title">Home</h3>
@@ -210,7 +388,7 @@ const Header: React.FC<HeaderProps> = ({
           <li className="menu-item">
             <Link
               href="/about"
-              className="menu-link"
+              className={`menu-link ${isActive("/about") ? "active" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               <h3 className="menu-title">About</h3>
@@ -218,21 +396,69 @@ const Header: React.FC<HeaderProps> = ({
           </li>
           <li className="menu-item">
             <Link
+              href="/todays-nudge"
+              className={`menu-link ${isActive("/todays-nudge") ? "active" : ""}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <h3 className="menu-title">Today&apos;s Nudge</h3>
+            </Link>
+          </li>
+          <li className="menu-item">
+            <Link
+              href="/ask-liv"
+              className={`menu-link ask-liv ${isActive("/ask-liv") ? "active" : ""}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <h3 className="menu-title">Ask Liv</h3>
+            </Link>
+          </li>
+          <li className="menu-item">
+            <Link
+              href="/profile"
+              className={`menu-link ${isActive("/profile") ? "active" : ""}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <h3 className="menu-title">Your Profile</h3>
+            </Link>
+          </li>
+          <li className="menu-item">
+            <Link
+              href="/faq"
+              className={`menu-link ${isActive("/faq") ? "active" : ""}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <h3 className="menu-title">FAQ</h3>
+            </Link>
+          </li>
+          <li className="menu-item">
+            <Link
+              href="/chat-history"
+              className={`menu-link ${isActive("/chat-history") ? "active" : ""}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <h3 className="menu-title">Chat History</h3>
+            </Link>
+          </li>
+          <li className="menu-item">
+            <Link
               href="/contact"
-              className="menu-link"
+              className={`menu-link ${isActive("/contact") ? "active" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               <h3 className="menu-title">Contact</h3>
             </Link>
           </li>
           <li className="menu-item">
-            <Link
-              href="/login"
+            <button
+              type="button"
               className="menu-link"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={async () => {
+                await handleAuthAction();
+                setIsMenuOpen(false);
+              }}
             >
-              <h3 className="menu-title">{loginText}</h3>
-            </Link>
+              <h3 className="menu-title">{authActionLabel}</h3>
+            </button>
           </li>
         </ul>
       </nav>

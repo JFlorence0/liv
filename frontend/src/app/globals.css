@@ -2259,6 +2259,14 @@ body {
   color: #f18b82; /* Pink color for active title */
 }
 
+.menu-link.ask-liv {
+  color: #1b8bd8;
+}
+
+.menu-link.ask-liv .menu-title {
+  color: #1b8bd8;
+}
+
 .menu-title {
   /* font-size: 14px; */
   font-weight: 500;
