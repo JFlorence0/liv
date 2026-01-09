@@ -15,6 +15,9 @@ uvicorn app.main:app --reload
 docker compose up --build
 ```
 
+Run this from the repo root so both services can be included.
+Frontend will be available on `http://localhost:3001`.
+
 ## Configuration
 
 - Copy `backend/.env.example` to `backend/.env` for local development.
