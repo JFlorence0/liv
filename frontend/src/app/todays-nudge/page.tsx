@@ -1,8 +1,65 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Header from "@/components/common/Header";
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 export default function TodaysNudgePage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [nudgeError, setNudgeError] = useState<string | null>(null);
+  const [todaysNudge, setTodaysNudge] = useState<{
+    title: string;
+    content: string;
+    day?: string;
+    pillar?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchTodaysNudge = async () => {
+      try {
+        setIsLoading(true);
+        setNudgeError(null);
+
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          setNudgeError("Please log in to view your nudge.");
+          return;
+        }
+
+        const apiBase =
+          process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+        const response = await fetch(`${apiBase}/nudges/today`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load today's nudge.");
+        }
+
+        const data = await response.json();
+        const content = data?.nudge?.content || null;
+        if (content) {
+          setTodaysNudge(content);
+        } else {
+          setNudgeError("Today's nudge is being prepared.");
+        }
+      } catch (error: any) {
+        const message = error?.message || "Failed to load today's nudge.";
+        setNudgeError(message);
+        toast.error(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTodaysNudge();
+  }, []);
+
   return (
     <div className="bg-[#F18B82A8] h-screen w-full flex flex-col relative overflow-hidden justify-start">
       <div className="flex-shrink-0">
@@ -34,7 +91,7 @@ export default function TodaysNudgePage() {
           }}
         >
           <h2 className="font-semibold text-white text-center mb-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl leading-tight flex-shrink-0">
-            Today = Movement
+            {todaysNudge?.title || "Today's Nudge"}
           </h2>
 
           <div
@@ -47,8 +104,12 @@ export default function TodaysNudgePage() {
               }
             `}</style>
             <p className="text-white text-left px-4 text-base sm:text-lg md:text-xl lg:text-2xl xl:text-xl leading-relaxed w-full">
-              Today’s nudge will appear here. We’re wiring the personalization
-              flow now, but the UI is ready.
+              {isLoading
+                ? "Loading today's nudge..."
+                : nudgeError
+                  ? nudgeError
+                  : todaysNudge?.content ||
+                    "Today's nudge will appear here soon."}
             </p>
           </div>
 
@@ -60,6 +121,7 @@ export default function TodaysNudgePage() {
               type="button"
               className="w-full max-w-[280px] rounded-2xl bg-white border-2 border-[#0A744E] text-[#0A744E] font-bold text-base sm:text-lg py-3 px-6 flex items-center justify-center tracking-wide shadow-md opacity-95 hover:opacity-100 hover:shadow-lg transition-all duration-200"
               style={{ letterSpacing: "0.5px" }}
+              disabled={isLoading}
             >
               Your Challenge Today?
             </button>

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Header, HTTPException, status
 
 from app.core.config import settings
 from app.models.profiles import ProfileUpdate
+from app.services.nudges import invalidate_today_nudges
 
 router = APIRouter()
 
@@ -68,5 +69,19 @@ async def update_profile(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=error_detail,
             )
+
+        profile_time_zone = update_payload.get("time_zone")
+        if not profile_time_zone:
+            profile_res = await client.get(
+                f"{settings.supabase_url}/rest/v1/profiles",
+                params={"select": "time_zone", "id": f"eq.{user_id}"},
+                headers={"apikey": settings.supabase_anon_key},
+            )
+            if profile_res.status_code < 400:
+                profile_data = profile_res.json()
+                if profile_data:
+                    profile_time_zone = profile_data[0].get("time_zone")
+
+        await invalidate_today_nudges(client, user_id, profile_time_zone, authorization)
 
         return {"data": update_res.json()}

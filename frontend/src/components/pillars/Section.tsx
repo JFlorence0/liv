@@ -1,5 +1,7 @@
+import { useEffect, useMemo, useState } from "react";
 import Card from "./Card";
 import { pillars } from "@/utils/global";
+import { getPillarsCached } from "@/utils/pillars";
 
 interface PillarsSectionProps {
   bgColor?: string;
@@ -10,8 +12,45 @@ const PillarsSection: React.FC<PillarsSectionProps> = ({
   bgColor = "bg-[#578E7AA8]",
   showTitle = true,
 }) => {
-  const firstFourPillars = pillars.slice(0, 4);
-  const lastThreePillars = pillars.slice(4);
+  const [pillarItems, setPillarItems] = useState(pillars);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const hydratePillars = async () => {
+      try {
+        const data = await getPillarsCached();
+        if (!mounted) return;
+
+        const items = data.keys.map((key) => {
+          return {
+            name: data.meta[key]?.label || key,
+            icon: data.meta[key]?.icon || "/preventive-healthcare.svg",
+            slug: data.meta[key]?.slug || key,
+          };
+        });
+
+        if (items.length) {
+          setPillarItems(items);
+        }
+      } catch {
+        // Keep fallback pillars from local config.
+      }
+    };
+
+    hydratePillars();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const { firstFourPillars, lastThreePillars } = useMemo(() => {
+    return {
+      firstFourPillars: pillarItems.slice(0, 4),
+      lastThreePillars: pillarItems.slice(4),
+    };
+  }, [pillarItems]);
 
   return (
     <div

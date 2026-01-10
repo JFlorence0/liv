@@ -35,3 +35,37 @@ export const pillars = [
     slug: "preventive-healthcare",
   },
 ];
+
+export const pillarAssetsByKey: Record<
+  string,
+  { icon: string; slug: string }
+> = {
+  food_nutrition: {
+    icon: "/food-nutrition.svg",
+    slug: "food-nutrition",
+  },
+  movement_exercise: {
+    icon: "/exercise-movement.svg",
+    slug: "exercise-movement",
+  },
+  drugs_supplements: {
+    icon: "/longevity-drugs.svg",
+    slug: "longevity-drugs",
+  },
+  sleep_recovery: {
+    icon: "/better-sleep.svg",
+    slug: "better-sleep",
+  },
+  sexual_health: {
+    icon: "/sexual-health.svg",
+    slug: "sexual-health",
+  },
+  mental_fitness: {
+    icon: "/social-connection.svg",
+    slug: "mental-fitness",
+  },
+  preventive_healthcare: {
+    icon: "/preventive-healthcare.svg",
+    slug: "preventive-healthcare",
+  },
+};
